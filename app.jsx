@@ -69,28 +69,12 @@ function getStreak(completions) {
 
 function Heatmap({ habitId, completions, onToggle, dark, year }) {
   const [tip, setTip] = useState(null);
-  const containerRef = useRef(null);
-  const grid = buildYearGrid(year);
-  const monthLabels = getMonthLabels(grid, year);
+  const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayKey = toKey(today);
-  const DAY_W = 26;
-  const sub = dark ? "#8b949e" : "#9ca3af";
-  const dec31 = new Date(year, 11, 31);
-  const isCurrentYear = year === today.getFullYear();
-  const todayWeekIndex = grid.findIndex(week => week.some(d => toKey(d) === todayKey));
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    if (isCurrentYear && todayWeekIndex !== -1) {
-      const scrollTo = (todayWeekIndex + 2) * STEP - el.clientWidth;
-      el.scrollLeft = Math.max(0, scrollTo);
-    } else {
-      el.scrollLeft = 0;
-    }
-  }, [year]);
+  const sub = dark ? "#8b949e" : "#9ca3af";
 
   return (
     <div style={{ position: "relative" }}>
@@ -106,68 +90,89 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
           zIndex: 9999, boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
         }}>{tip.text}</div>
       )}
-      <div style={{ display: "flex", gap: 6 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: GAP, width: DAY_W, flexShrink: 0, marginTop: 19 }}>
-          {["Mon", "", "Wed", "", "Fri", "", "Sun"].map((name, i) => (
-            <div key={i} style={{ height: CELL, fontSize: 9, color: sub, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 4 }}>
-              {name}
-            </div>
-          ))}
-        </div>
-        <div ref={containerRef} style={{ overflowX: "auto", flex: 1, paddingBottom: 8 }}>
-          <div style={{ display: "inline-flex", flexDirection: "column" }}>
-            <div style={{ position: "relative", height: 16, width: grid.length * STEP, marginBottom: 3 }}>
-              {monthLabels.map(({ wi, label }) => (
-                <span key={wi} style={{ position: "absolute", left: wi * STEP, fontSize: 10, color: sub, fontWeight: 600 }}>
-                  {label}
-                </span>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: GAP }}>
-              {grid.map((week, wi) => (
-                <div key={wi} style={{ display: "flex", flexDirection: "column", gap: GAP }}>
-                  {week.map((date, di) => {
-                    const inYear = date.getFullYear() === year && date <= dec31;
-                    const key = toKey(date);
-                    const isToday = key === todayKey;
-                    const isFuture = date > today;
-                    const done = !!(completions && completions[key]);
-                    const label = date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-                    const bg = !inYear ? "transparent" : done ? (dark ? "#39d353" : "#2da44e") : (dark ? "#21262d" : "#ebedf0");
-                    const numColor = !inYear ? "transparent" : done ? "#fff" : (dark ? "#8b949e" : "#aaa");
-                    return (
-                      <div
-                        key={key + wi + di}
-                        onClick={() => { if (inYear && !isFuture) onToggle(habitId, key); }}
-                        onMouseEnter={e => { if (inYear) setTip({ x: e.clientX, y: e.clientY, text: (isToday ? "Today · " : "") + label }); }}
-                        onMouseLeave={() => setTip(null)}
-                        style={{
-                          width: CELL, height: CELL, borderRadius: 4,
-                          background: bg,
-                          outline: isToday ? `2px solid ${dark ? "#58a6ff" : "#0969da"}` : "none",
-                          outlineOffset: -1,
-                          cursor: (inYear && !isFuture) ? "pointer" : "default",
-                          transition: "background 0.15s",
-                          boxSizing: "border-box",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 8, fontWeight: 500,
-                          color: numColor,
-                          userSelect: "none",
-                        }}
-                      >
-                        {inYear ? date.getDate() : ""}
-                      </div>
-                    );
-                  })}
+      
+      {/* Container for the monthly grids */}
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", 
+        gap: "20px",
+        marginTop: "10px" 
+      }}>
+        {months.map(m => {
+          const monthLabel = new Date(year, m).toLocaleString("default", { month: "short" });
+          const grid = buildMonthGrid(year, m);
+          
+          return (
+            <div key={m} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ fontSize: 11, color: sub, fontWeight: 600, textAlign: "center" }}>{monthLabel}</div>
+              <div style={{ display: "flex", gap: GAP }}>
+                {/* Day Labels (M, W, F, S) inside the month if you want, but keeps it clean */}
+                <div style={{ display: "flex", flexDirection: "column", gap: GAP }}>
+                  {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                    <div key={i} style={{ height: 14, fontSize: 8, color: sub, display: "flex", alignItems: "center" }}>{d}</div>
+                  ))}
                 </div>
-              ))}
+                
+                <div style={{ display: "flex", gap: GAP }}>
+                  {grid.map((week, wi) => (
+                    <div key={wi} style={{ display: "flex", flexDirection: "column", gap: GAP }}>
+                      {week.map((date, di) => {
+                        if (!date) return <div key={di} style={{ width: 14, height: 14 }} />;
+                        
+                        const key = toKey(date);
+                        const isToday = key === todayKey;
+                        const isFuture = date > today;
+                        const done = !!(completions && completions[key]);
+                        const bg = done ? (dark ? "#39d353" : "#2da44e") : (dark ? "#21262d" : "#ebedf0");
+                        
+                        return (
+                          <div
+                            key={key}
+                            onClick={() => { if (!isFuture) onToggle(habitId, key); }}
+                            onMouseEnter={e => setTip({ x: e.clientX, y: e.clientY, text: (isToday ? "Today · " : "") + date.toLocaleDateString() })}
+                            onMouseLeave={() => setTip(null)}
+                            style={{
+                              width: 14, height: 14, borderRadius: 3,
+                              background: bg,
+                              outline: isToday ? `1.5px solid ${dark ? "#58a6ff" : "#0969da"}` : "none",
+                              outlineOffset: -1,
+                              cursor: !isFuture ? "pointer" : "default",
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );
 }
+
+// Add this helper function below your other helper functions
+function buildMonthGrid(year, month) {
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  const weeks = [];
+  let currentWeek = Array(7).fill(null);
+  
+  for (let d = 1; d <= end.getDate(); d++) {
+    const date = new Date(year, month, d);
+    const dayOfWeek = (date.getDay() + 6) % 7; // Adjust to Monday start
+    currentWeek[dayOfWeek] = date;
+    
+    if (dayOfWeek === 6 || d === end.getDate()) {
+      weeks.push(currentWeek);
+      currentWeek = Array(7).fill(null);
+    }
+  }
+  return weeks;
+}
+
 
 function HabitCard({ habit, onDelete, onToggle, dark, year }) {
   const streak = getStreak(habit.completions);
