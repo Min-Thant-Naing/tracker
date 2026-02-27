@@ -137,7 +137,8 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                               fontWeight: 800,
                               color: done ? "#fff" : (dark ? "#444c56" : "#9ca3af"),
                               userSelect: "none",
-                              touchAction: "manipulation"
+                              touchAction: "manipulation",
+                              opacity: isFuture ? 0.25 : 1,
                             }}
                           >
                             {date.getDate()}
@@ -216,8 +217,37 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    document.body.style.backgroundColor = dark ? "#0d1117" : "#f6f8fa";
-  }, [dark]);
+    const baseColor = dark ? "#0d1117" : "#f6f8fa";
+    // If settings is open, we want the status bar to dim with the backdrop
+    const color = isSettingsOpen ? (dark ? "#05070a" : "#939597") : baseColor;
+    
+    document.body.style.backgroundColor = baseColor;
+    document.documentElement.style.backgroundColor = baseColor;
+    
+    if (dark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Ensure the theme-color meta tag is exactly the same as the background
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      (meta as HTMLMetaElement).name = "theme-color";
+      document.head.appendChild(meta);
+    }
+    (meta as HTMLMetaElement).content = color;
+    
+    // Apple-specific meta tag for status bar style
+    let appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (!appleMeta) {
+      appleMeta = document.createElement('meta');
+      (appleMeta as HTMLMetaElement).name = "apple-mobile-web-app-status-bar-style";
+      document.head.appendChild(appleMeta);
+    }
+    (appleMeta as HTMLMetaElement).content = "black-translucent";
+  }, [dark, isSettingsOpen]);
 
   async function fetchHabits() {
     try {
@@ -314,10 +344,10 @@ export default function App() {
             <div style={{ 
               height: "1px", 
               width: "100%", 
-              background: dark ? "#30363d" : "#e5e7eb", 
+              background: dark ? "#30363d" : "#d1d5db", 
               marginTop: "32px",
               borderRadius: "1px",
-              opacity: 0.4
+              opacity: 0.7
             }} />
           </div>
         ))}
@@ -390,7 +420,11 @@ export default function App() {
               onClick={() => setIsSettingsOpen(false)}
               style={{
                 position: "fixed",
-                inset: 0,
+                top: "-100px",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "calc(100% + 100px)",
                 background: "rgba(0,0,0,0.4)",
                 zIndex: 200,
                 backdropFilter: "blur(4px)"
