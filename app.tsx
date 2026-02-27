@@ -71,11 +71,6 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
 
   return (
     <div style={{ position: "relative" }}>
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        body::-webkit-scrollbar { display: none; }
-        body { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
       {tip && (
         <div style={{
           position: "fixed", left: tip.x, top: tip.y - 38,
@@ -92,10 +87,11 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
       <div style={{ 
         display: "flex", 
         overflowX: "auto", 
-        gap: "24px", 
+        gap: "40px", 
         paddingBottom: "10px",
         scrollbarWidth: "none", 
-        msOverflowStyle: "none"
+        msOverflowStyle: "none",
+        justifyContent: "flex-start"
       }} className="no-scrollbar">
         <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
 
@@ -104,21 +100,21 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
           const grid = buildMonthGrid(year, m);
           
           return (
-            <div key={m} style={{ flex: "0 0 calc(33.33% - 16px)", minWidth: "160px" }}>
-              <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: "10px" }}>{monthLabel}</div>
-              <div style={{ display: "flex", gap: "4px" }}>
+            <div key={m} style={{ flex: "0 0 auto" }}>
+              <div style={{ fontSize: 13, color: sub, fontWeight: 600, marginBottom: "12px" }}>{monthLabel}</div>
+              <div style={{ display: "flex", gap: "6px" }}>
                 
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginRight: "10px", width: "18px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginRight: "12px", width: "24px" }}>
                   {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-                    <div key={i} style={{ height: "18px", fontSize: "10px", color: sub, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600 }}>{d}</div>
+                    <div key={i} style={{ height: "24px", fontSize: "11px", color: sub, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>{d}</div>
                   ))}
                 </div>
                 
-                <div style={{ display: "flex", gap: "4px" }}>
+                <div style={{ display: "flex", gap: "6px" }}>
                   {grid.map((week, wi) => (
-                    <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                       {week.map((date, di) => {
-                        if (!date) return <div key={di} style={{ width: "18px", height: "18px" }} />;
+                        if (!date) return <div key={di} style={{ width: "24px", height: "24px" }} />;
                         const key = toKey(date);
                         const isFuture = date > today;
                         const done = !!(completions && completions[key]);
@@ -131,16 +127,17 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                             onMouseEnter={e => setTip({ x: e.clientX, y: e.clientY, text: date.toLocaleDateString() })}
                             onMouseLeave={() => setTip(null)}
                             style={{
-                              width: "18px", height: "18px", borderRadius: "3px",
+                              width: "24px", height: "24px", borderRadius: "4px",
                               background: bg,
                               cursor: !isFuture ? "pointer" : "default",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              fontSize: "8px",
-                              fontWeight: 700,
+                              fontSize: "10px",
+                              fontWeight: 800,
                               color: done ? "#fff" : (dark ? "#444c56" : "#9ca3af"),
-                              userSelect: "none"
+                              userSelect: "none",
+                              touchAction: "manipulation"
                             }}
                           >
                             {date.getDate()}
@@ -217,6 +214,10 @@ export default function App() {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  useEffect(() => {
+    document.body.style.backgroundColor = dark ? "#0d1117" : "#f6f8fa";
+  }, [dark]);
 
   async function fetchHabits() {
     try {
