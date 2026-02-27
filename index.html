@@ -5,23 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Habit Tracker</title>
     <style>
-  /* This forces the browser background to match your app's dark theme */
-  body, html {
-    margin: 0;
-    padding: 0;
-    background-color: #0d1117; /* This matches your dark theme color */
-  }
-</style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        background-color: #0d1117;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module">
-      import React from 'react';
-      import ReactDOM from 'react-dom/client';
-      import App from './app.jsx';
-      ReactDOM.createRoot(document.getElementById('root')).render(
-        React.createElement(App)
-      );
-    </script>
+    <script type="module" src="/main.tsx"></script>
   </body>
 </html>
