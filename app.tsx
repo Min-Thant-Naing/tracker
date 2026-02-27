@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { Settings, X } from "lucide-react";
+import { Settings, X, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 // --- PASTE YOUR ACTUAL KEYS HERE ---
@@ -104,21 +104,21 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
           const grid = buildMonthGrid(year, m);
           
           return (
-            <div key={m} style={{ flex: "0 0 calc(33.33% - 16px)", minWidth: "120px" }}>
-              <div style={{ fontSize: 11, color: sub, fontWeight: 500, marginBottom: "8px" }}>{monthLabel}</div>
-              <div style={{ display: "flex", gap: "3px" }}>
+            <div key={m} style={{ flex: "0 0 calc(33.33% - 16px)", minWidth: "160px" }}>
+              <div style={{ fontSize: 12, color: sub, fontWeight: 600, marginBottom: "10px" }}>{monthLabel}</div>
+              <div style={{ display: "flex", gap: "4px" }}>
                 
-                <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginRight: "8px", width: "14px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginRight: "10px", width: "18px" }}>
                   {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-                    <div key={i} style={{ height: "14px", fontSize: "9px", color: sub, display: "flex", alignItems: "center", justifyContent: "center" }}>{d}</div>
+                    <div key={i} style={{ height: "18px", fontSize: "10px", color: sub, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600 }}>{d}</div>
                   ))}
                 </div>
                 
-                <div style={{ display: "flex", gap: "3px" }}>
+                <div style={{ display: "flex", gap: "4px" }}>
                   {grid.map((week, wi) => (
-                    <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                    <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                       {week.map((date, di) => {
-                        if (!date) return <div key={di} style={{ width: "14px", height: "14px" }} />;
+                        if (!date) return <div key={di} style={{ width: "18px", height: "18px" }} />;
                         const key = toKey(date);
                         const isFuture = date > today;
                         const done = !!(completions && completions[key]);
@@ -131,7 +131,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                             onMouseEnter={e => setTip({ x: e.clientX, y: e.clientY, text: date.toLocaleDateString() })}
                             onMouseLeave={() => setTip(null)}
                             style={{
-                              width: "14px", height: "14px", borderRadius: "2px",
+                              width: "18px", height: "18px", borderRadius: "3px",
                               background: bg,
                               cursor: !isFuture ? "pointer" : "default",
                             }}
@@ -360,13 +360,11 @@ export default function App() {
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              fontSize: "32px",
-              fontWeight: "700",
               flexShrink: 0,
-              boxShadow: "0 4px 12px rgba(255, 149, 0, 0.3)",
+              boxShadow: "0 4px 12px rgba(255, 149, 0, 0.4)",
             }}
           >
-            +
+            <Plus size={32} strokeWidth={3} />
           </button>
         </div>
       </div>
