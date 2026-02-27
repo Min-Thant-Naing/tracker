@@ -64,10 +64,23 @@ interface HeatmapProps {
 
 const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark, year }) => {
   const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const monthRefs = useRef<(HTMLDivElement | null)[]>([]);
   const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const sub = dark ? "#8b949e" : "#9ca3af";
+
+  useEffect(() => {
+    const currentMonth = new Date().getMonth();
+    const target = monthRefs.current[currentMonth];
+    if (target && scrollRef.current) {
+      // Small delay to ensure layout is stable
+      setTimeout(() => {
+        target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      }, 100);
+    }
+  }, []);
 
   return (
     <div style={{ position: "relative" }}>
@@ -84,15 +97,17 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
         }}>{tip.text}</div>
       )}
       
-      <div style={{ 
-        display: "flex", 
-        overflowX: "auto", 
-        gap: "40px", 
-        paddingBottom: "10px",
-        scrollbarWidth: "none", 
-        msOverflowStyle: "none",
-        justifyContent: "flex-start"
-      }} className="no-scrollbar">
+      <div 
+        ref={scrollRef}
+        style={{ 
+          display: "flex", 
+          overflowX: "auto", 
+          gap: "40px", 
+          paddingBottom: "10px",
+          scrollbarWidth: "none", 
+          msOverflowStyle: "none",
+          justifyContent: "flex-start"
+        }} className="no-scrollbar">
         <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
 
         {months.map(m => {
@@ -100,7 +115,11 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
           const grid = buildMonthGrid(year, m);
           
           return (
-            <div key={m} style={{ flex: "0 0 auto" }}>
+            <div 
+              key={m} 
+              ref={el => monthRefs.current[m] = el}
+              style={{ flex: "0 0 auto" }}
+            >
               <div style={{ fontSize: 13, color: sub, fontWeight: 600, marginBottom: "12px" }}>{monthLabel}</div>
               <div style={{ display: "flex", gap: "6px" }}>
                 
@@ -114,8 +133,9 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                   {grid.map((week, wi) => (
                     <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                       {week.map((date, di) => {
-                        if (!date) return <div key={di} style={{ width: "24px", height: "24px" }} />;
+                        if (!date) return <div key={di} style={{ width: "28px", height: "24px" }} />;
                         const key = toKey(date);
+                        const isToday = key === toKey(today);
                         const isFuture = date > today;
                         const done = !!(completions && completions[key]);
                         const bg = done ? "#ff9500" : (dark ? "#21262d" : "#ebedf0"); 
@@ -127,7 +147,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                             onMouseEnter={e => setTip({ x: e.clientX, y: e.clientY, text: date.toLocaleDateString() })}
                             onMouseLeave={() => setTip(null)}
                             style={{
-                              width: "24px", height: "24px", borderRadius: "4px",
+                              width: "28px", height: "24px", borderRadius: "4px",
                               background: bg,
                               cursor: !isFuture ? "pointer" : "default",
                               display: "flex",
@@ -139,6 +159,8 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                               userSelect: "none",
                               touchAction: "manipulation",
                               opacity: isFuture ? 0.25 : 1,
+                              border: isToday ? `2px solid ${dark ? "#f0f6fc" : "#24292f"}` : "none",
+                              boxSizing: "border-box"
                             }}
                           >
                             {date.getDate()}
