@@ -263,28 +263,35 @@ async function fetchHabits() {
 
   if (loading) return <div style={{ background: bg, minHeight: "100vh", color: textCol, padding: 20 }}>Loading permanent habits...</div>;
 
-return (
+  return (
     <div style={{ minHeight: "100vh", background: bg, fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', sans-serif", transition: "background 0.3s" }}>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 24px", borderBottom: dark ? "1px solid #21262d" : "1px solid #e5e7eb" }}>
-        <span style={{ fontSize: 17, fontWeight: 700, color: textCol, letterSpacing: "-0.3px" }}>Habit Tracker</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button onClick={() => setYear(y => y - 1)} style={{ background: "none", border: "none", cursor: "pointer", color: subCol, fontSize: 18, padding: 0, lineHeight: 1 }}>‹</button>
-          <span style={{ fontSize: 13, fontWeight: 600, color: textCol, minWidth: 36, textAlign: "center" }}>{year}</span>
-          <button onClick={() => setYear(y => Math.min(y + 1, currentYear))} style={{ background: "none", border: "none", cursor: "pointer", color: year >= currentYear ? (dark ? "#30363d" : "#d1d5db") : subCol, fontSize: 18, padding: 0, lineHeight: 1 }}>›</button>
-        </div>
+      
+      {/* 1. Header: REMOVED BORDER-BOTTOM AND YEAR */}
+      <div style={{ padding: "30px 24px 10px" }}>
+        <span style={{ fontSize: 24, fontWeight: 700, color: textCol, letterSpacing: "-0.5px" }}>Habit Tracker</span>
       </div>
 
-      {/* Habit List - Increased bottom padding to 180px so habits don't get stuck behind the bar */}
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 16px 180px" }}>
-        {habits.length === 0 && <div style={{ textAlign: "center", color: subCol, marginTop: 60, fontSize: 13 }}>No habits yet. Add one below 🌱</div>}
-        {habits.map(h => <HabitCard key={h.id} habit={h} onDelete={deleteHabit} onToggle={toggleDay} dark={dark} year={year} />)}
+      {/* 2. Habit List - Spacing adjusted for no borders */}
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 16px 180px" }}>
+        {habits.length === 0 && <div style={{ textAlign: "center", color: subCol, marginTop: 60, fontSize: 13 }}>No habits yet 🌱</div>}
+        {habits.map(h => (
+          <div key={h.id} style={{ padding: "20px 0", marginBottom: "10px" }}>
+            
+            {/* 3. Card Header: REMOVED BLUE YEAR AND X BUTTON */}
+            <div style={{ marginBottom: "12px" }}>
+              <div style={{ fontSize: "17px", fontWeight: "600", color: textCol }}>{h.name}</div>
+              <div style={{ fontSize: "13px", color: subCol, marginTop: "2px" }}>{getStreak(h.completions)} day streak</div>
+            </div>
+
+            <Heatmap habitId={h.id} completions={h.completions} onToggle={toggleDay} dark={dark} year={year} />
+          </div>
+        ))}
       </div>
 
-      {/* Floating Safari-Style Bar */}
+      {/* Floating Safari-Style Bar (Stays the same) */}
       <div style={{
         position: "fixed",
-        bottom: "40px", // Increased space from the very bottom
+        bottom: "40px",
         left: 0,
         right: 0,
         zIndex: 100,
@@ -301,12 +308,11 @@ return (
           alignItems: "center",
           gap: "12px",
           padding: "8px 8px 8px 20px",
-          // Matches your dark background color #0d1117 exactly with a bit of glass transparency
           background: dark ? "rgba(13, 17, 23, 0.85)" : "rgba(255, 255, 255, 0.9)",
           backdropFilter: "blur(20px) saturate(180%)",
           WebkitBackdropFilter: "blur(20px) saturate(180%)",
           borderRadius: "32px",
-          border: dark ? "1px solid #30363d" : "1px solid #e5e7eb", // Uses your actual border colors
+          border: dark ? "1px solid #30363d" : "1px solid #e5e7eb",
           boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
         }}>
           <input
@@ -314,36 +320,14 @@ return (
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && addHabit()}
             placeholder="New habit..."
-            style={{
-              flex: 1,
-              background: "transparent",
-              border: "none",
-              fontSize: "17px",
-              color: textCol,
-              outline: "none",
-            }}
+            style={{ flex: 1, background: "transparent", border: "none", fontSize: "17px", color: textCol, outline: "none" }}
           />
-          <button 
-            onClick={addHabit} 
-            style={{
-              width: "40px",
-              height: "40px",
-              background: dark ? "#39d353" : "#2da44e", // Uses the green from your checkmarks
-              color: "#fff",
-              border: "none",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              fontSize: "24px",
-              fontWeight: "300",
-            }}
-          >
+          <button onClick={addHabit} style={{ width: "40px", height: "40px", background: dark ? "#39d353" : "#2da44e", color: "#fff", border: "none", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "24px", fontWeight: "300" }}>
             +
           </button>
         </div>
       </div>
     </div>
   );
+
 }
