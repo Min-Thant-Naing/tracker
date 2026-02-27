@@ -273,8 +273,9 @@ async function fetchHabits() {
 
   if (loading) return <div style={{ background: bg, minHeight: "100vh", color: textCol, padding: 20 }}>Loading permanent habits...</div>;
 
-  return (
+return (
     <div style={{ minHeight: "100vh", background: bg, fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', sans-serif", transition: "background 0.3s" }}>
+      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 24px", borderBottom: dark ? "1px solid #21262d" : "1px solid #e5e7eb" }}>
         <span style={{ fontSize: 17, fontWeight: 700, color: textCol, letterSpacing: "-0.3px" }}>Habit Tracker</span>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -284,28 +285,73 @@ async function fetchHabits() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 16px 180px" }}>
+      {/* Habit List */}
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 16px 140px" }}>
         {habits.length === 0 && <div style={{ textAlign: "center", color: subCol, marginTop: 60, fontSize: 13 }}>No habits yet. Add one below 🌱</div>}
         {habits.map(h => <HabitCard key={h.id} habit={h} onDelete={deleteHabit} onToggle={toggleDay} dark={dark} year={year} />)}
       </div>
 
+      {/* Apple Safari-Style Floating Search/Add Bar */}
       <div style={{
-        position: "fixed", bottom: 0, left: 0, right: 0,
-        padding: "16px 16px calc(24px + env(safe-area-inset-bottom))",
-        background: dark
-          ? "linear-gradient(to top, rgba(13,17,23,1) 70%, rgba(13,17,23,0))"
-          : "linear-gradient(to top, rgba(246,248,250,1) 70%, rgba(246,248,250,0))",
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: "10px 16px calc(25px + env(safe-area-inset-bottom))",
         zIndex: 100,
+        display: "flex",
+        justifyContent: "center",
+        pointerEvents: "none", 
       }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", gap: 8 }}>
+        <div style={{
+          pointerEvents: "auto", 
+          width: "100%",
+          maxWidth: "400px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          padding: "6px 6px 6px 16px",
+          background: dark ? "rgba(40, 40, 40, 0.75)" : "rgba(255, 255, 255, 0.85)",
+          backdropFilter: "blur(25px) saturate(190%)",
+          WebkitBackdropFilter: "blur(25px) saturate(190%)",
+          borderRadius: "35px",
+          border: dark ? "0.5px solid rgba(255,255,255,0.12)" : "0.5px solid rgba(0,0,0,0.08)",
+          boxShadow: "0 12px 35px rgba(0,0,0,0.18)",
+        }}>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && addHabit()}
             placeholder="Add a habit..."
-            style={{ flex: 1, background: inputBg, border: inputBorder, borderRadius: 10, padding: "11px 14px", fontSize: 16, color: textCol, outline: "none", boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "0 2px 12px rgba(0,0,0,0.08)" }}
+            style={{
+              flex: 1,
+              background: "transparent",
+              border: "none",
+              fontSize: "17px", 
+              color: textCol,
+              outline: "none",
+              padding: "10px 0",
+            }}
           />
-          <button onClick={addHabit} style={{ background: dark ? "#238636" : "#111827", color: "#fff", border: "none", borderRadius: 10, padding: "11px 18px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Add</button>
+          <button 
+            onClick={addHabit} 
+            style={{
+              width: "38px",
+              height: "38px",
+              background: dark ? "#ffffff" : "#000000", 
+              color: dark ? "#000000" : "#ffffff",
+              border: "none",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: "20px",
+              fontWeight: "400",
+            }}
+          >
+            +
+          </button>
         </div>
       </div>
     </div>
