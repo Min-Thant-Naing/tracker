@@ -134,8 +134,17 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                               width: "18px", height: "18px", borderRadius: "3px",
                               background: bg,
                               cursor: !isFuture ? "pointer" : "default",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "8px",
+                              fontWeight: 700,
+                              color: done ? "#fff" : (dark ? "#444c56" : "#9ca3af"),
+                              userSelect: "none"
                             }}
-                          />
+                          >
+                            {date.getDate()}
+                          </div>
                         );
                       })}
                     </div>
@@ -364,7 +373,7 @@ export default function App() {
               boxShadow: "0 4px 12px rgba(255, 149, 0, 0.4)",
             }}
           >
-            <Plus size={32} strokeWidth={3} />
+            <Plus size={28} strokeWidth={3} />
           </button>
         </div>
       </div>
