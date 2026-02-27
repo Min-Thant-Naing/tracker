@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // --- PASTE YOUR ACTUAL KEYS HERE ---
 const SUPABASE_URL = "https://your-project-url.supabase.co"; 
-const SUPABASE_KEY = "your-anon-key-from-screenshot";
+const SUPABASE_KEY = "sb_publishable_kz6i62zm_68PD714_sMlsg_5n2QFZgs";
 // ------------------------------------
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
