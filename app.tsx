@@ -217,7 +217,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const baseColor = dark ? "#0d1117" : "#f6f8fa";
+    const baseColor = dark ? "#0d1117" : "#fbfaf7";
     // If settings is open, we want the status bar to dim with the backdrop
     const color = isSettingsOpen ? (dark ? "#05070a" : "#939597") : baseColor;
     
@@ -292,7 +292,7 @@ export default function App() {
     }
   }
 
-  const bg = dark ? "#0d1117" : "#f6f8fa";
+  const bg = dark ? "#0d1117" : "#fbfaf7";
   const textCol = dark ? "#e6edf3" : "#111827";
   const subCol = dark ? "#8b949e" : "#9ca3af";
 
@@ -316,7 +316,7 @@ export default function App() {
       
       {/* Header */}
       <div style={{ padding: "30px 24px 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 24, fontWeight: 700, color: textCol, letterSpacing: "-0.5px" }}>Habit Tracker</span>
+        <span style={{ fontSize: 24, fontWeight: 700, color: textCol, letterSpacing: "-0.5px" }}>Habit Tracker ✨</span>
         <button 
           onClick={() => setIsSettingsOpen(true)}
           style={{ background: "none", border: "none", color: subCol, cursor: "pointer", padding: 4 }}
@@ -328,7 +328,7 @@ export default function App() {
       {/* Habit List */}
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 16px 180px" }}>
         {habits.length === 0 && <div style={{ textAlign: "center", color: subCol, marginTop: 60, fontSize: 13 }}>No habits yet 🌱</div>}
-        {habits.map((h: Habit) => (
+        {habits.map((h: Habit, index: number) => (
           <div key={h.id} style={{ padding: "20px 0", marginBottom: "10px" }}>
             
             {/* Card Header */}
@@ -340,15 +340,17 @@ export default function App() {
 
             <Heatmap habitId={h.id} completions={h.completions} onToggle={toggleDay} dark={dark} year={year} />
             
-            {/* Long centered horizontal line after habit */}
-            <div style={{ 
-              height: "1px", 
-              width: "100%", 
-              background: dark ? "#30363d" : "#d1d5db", 
-              marginTop: "32px",
-              borderRadius: "1px",
-              opacity: 0.7
-            }} />
+            {/* Long centered horizontal line after habit - only if not last */}
+            {index < habits.length - 1 && (
+              <div style={{ 
+                height: "1px", 
+                width: "100%", 
+                background: dark ? "#30363d" : "#d1d5db", 
+                marginTop: "32px",
+                borderRadius: "1px",
+                opacity: 0.7
+              }} />
+            )}
           </div>
         ))}
       </div>
