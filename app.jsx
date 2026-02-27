@@ -1,4 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+// --- PASTE YOUR ACTUAL KEYS HERE ---
+const SUPABASE_URL = "https://your-project-url.supabase.co"; 
+const SUPABASE_KEY = "your-anon-key-from-screenshot";
+// ------------------------------------
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const CELL = 22;
 const GAP = 3;
@@ -46,6 +54,7 @@ function getMonthLabels(grid, year) {
 }
 
 function getStreak(completions) {
+  if (!completions) return 0;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   let s = 0;
@@ -122,7 +131,7 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
                     const key = toKey(date);
                     const isToday = key === todayKey;
                     const isFuture = date > today;
-                    const done = !!completions[key];
+                    const done = !!(completions && completions[key]);
                     const label = date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
                     const bg = !inYear ? "transparent" : done ? (dark ? "#39d353" : "#2da44e") : (dark ? "#21262d" : "#ebedf0");
                     const numColor = !inYear ? "transparent" : done ? "#fff" : (dark ? "#8b949e" : "#aaa");
@@ -165,7 +174,7 @@ function HabitCard({ habit, onDelete, onToggle, dark, year }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayKey = toKey(today);
-  const doneToday = !!habit.completions[todayKey];
+  const doneToday = !!(habit.completions && habit.completions[todayKey]);
   const cardBg = dark ? "#161b22" : "#fff";
   const border = dark ? "1px solid #30363d" : "1px solid #e5e7eb";
   const textCol = dark ? "#e6edf3" : "#111827";
@@ -202,29 +211,49 @@ export default function App() {
   const currentYear = new Date().getFullYear();
   const [dark, setDark] = useState(() => window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [year, setYear] = useState(currentYear);
-
-  // 1. Initialize from local storage
-  const [habits, setHabits] = useState(() => {
-    const saved = localStorage.getItem("habits_v1");
-    return saved ? JSON.parse(saved) : [
-      { id: 1, name: "Morning Run", completions: {} },
-      { id: 2, name: "Read 30 mins", completions: {} },
-    ];
-  });
-
+  const [habits, setHabits] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [input, setInput] = useState("");
 
-  // 2. Save to local storage whenever habits change
   useEffect(() => {
-    localStorage.setItem("habits_v1", JSON.stringify(habits));
-  }, [habits]);
-
-  useEffect(() => {
+    fetchHabits();
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = e => setDark(e.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  async function fetchHabits() {
+    const { data, error } = await supabase.from('habits').select('*').order('created_at', { ascending: true });
+    if (!error) setHabits(data || []);
+    setLoading(false);
+  }
+
+  async function addHabit() {
+    const name = input.trim();
+    if (!name) return;
+    const { data, error } = await supabase.from('habits').insert([{ name, completions: {} }]).select();
+    if (!error && data) {
+      setHabits([...habits, data[0]]);
+      setInput("");
+    }
+  }
+
+  async function deleteHabit(id) {
+    const { error } = await supabase.from('habits').delete().eq('id', id);
+    if (!error) setHabits(habits.filter(h => h.id !== id));
+  }
+
+  async function toggleDay(id, key) {
+    const habit = habits.find(h => h.id === id);
+    const newCompletions = { ...(habit.completions || {}) };
+    newCompletions[key] ? delete newCompletions[key] : (newCompletions[key] = true);
+
+    const { error } = await supabase.from('habits').update({ completions: newCompletions }).eq('id', id);
+    if (!error) {
+      setHabits(habits.map(h => h.id === id ? { ...h, completions: newCompletions } : h));
+    }
+  }
 
   const bg = dark ? "#0d1117" : "#f6f8fa";
   const textCol = dark ? "#e6edf3" : "#111827";
@@ -232,21 +261,7 @@ export default function App() {
   const inputBg = dark ? "#161b22" : "#fff";
   const inputBorder = dark ? "1px solid #30363d" : "1px solid #e5e7eb";
 
-  function addHabit() {
-    const name = input.trim();
-    if (!name) return;
-    setHabits(h => [...h, { id: Date.now(), name, completions: {} }]);
-    setInput("");
-  }
-  function deleteHabit(id) { setHabits(h => h.filter(x => x.id !== id)); }
-  function toggleDay(id, key) {
-    setHabits(h => h.map(habit => {
-      if (habit.id !== id) return habit;
-      const c = { ...habit.completions };
-      c[key] ? delete c[key] : (c[key] = true);
-      return { ...habit, completions: c };
-    }));
-  }
+  if (loading) return <div style={{ background: bg, minHeight: "100vh", color: textCol, padding: 20 }}>Loading permanent habits...</div>;
 
   return (
     <div style={{ minHeight: "100vh", background: bg, fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', sans-serif", transition: "background 0.3s" }}>
