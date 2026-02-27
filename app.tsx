@@ -104,13 +104,13 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
           const grid = buildMonthGrid(year, m);
           
           return (
-            <div key={m} style={{ flex: "0 0 calc(33.33% - 16px)", minWidth: "100px" }}>
+            <div key={m} style={{ flex: "0 0 calc(33.33% - 16px)", minWidth: "120px" }}>
               <div style={{ fontSize: 11, color: sub, fontWeight: 500, marginBottom: "8px" }}>{monthLabel}</div>
               <div style={{ display: "flex", gap: "3px" }}>
                 
-                <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginRight: "4px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginRight: "8px", width: "14px" }}>
                   {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-                    <div key={i} style={{ height: "12px", fontSize: "8px", color: sub, display: "flex", alignItems: "center" }}>{d}</div>
+                    <div key={i} style={{ height: "14px", fontSize: "9px", color: sub, display: "flex", alignItems: "center", justifyContent: "center" }}>{d}</div>
                   ))}
                 </div>
                 
@@ -118,7 +118,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                   {grid.map((week, wi) => (
                     <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
                       {week.map((date, di) => {
-                        if (!date) return <div key={di} style={{ width: "12px", height: "12px" }} />;
+                        if (!date) return <div key={di} style={{ width: "14px", height: "14px" }} />;
                         const key = toKey(date);
                         const isFuture = date > today;
                         const done = !!(completions && completions[key]);
@@ -131,7 +131,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                             onMouseEnter={e => setTip({ x: e.clientX, y: e.clientY, text: date.toLocaleDateString() })}
                             onMouseLeave={() => setTip(null)}
                             style={{
-                              width: "12px", height: "12px", borderRadius: "2px",
+                              width: "14px", height: "14px", borderRadius: "2px",
                               background: bg,
                               cursor: !isFuture ? "pointer" : "default",
                             }}
@@ -299,6 +299,16 @@ export default function App() {
             </div>
 
             <Heatmap habitId={h.id} completions={h.completions} onToggle={toggleDay} dark={dark} year={year} />
+            
+            {/* Long centered horizontal line after habit */}
+            <div style={{ 
+              height: "1px", 
+              width: "100%", 
+              background: dark ? "#30363d" : "#e5e7eb", 
+              marginTop: "32px",
+              borderRadius: "1px",
+              opacity: 0.4
+            }} />
           </div>
         ))}
       </div>
