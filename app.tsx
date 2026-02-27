@@ -328,7 +328,7 @@ export default function App() {
       fontSize: "15px",
       fontWeight: 500
     }}>
-      Loading habit tracker app... 🌱
+      Loading habit tracker app... ✨
     </div>
   );
 
