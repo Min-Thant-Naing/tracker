@@ -324,9 +324,26 @@ async function fetchHabits() {
             placeholder="New habit..."
             style={{ flex: 1, background: "transparent", border: "none", fontSize: "17px", color: textCol, outline: "none" }}
           />
-          <button onClick={addHabit} style={{ width: "40px", height: "40px", background: dark ? "#39d353" : "#2da44e", color: "#fff", border: "none", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "24px", fontWeight: "300" }}>
+                   <button 
+            onClick={addHabit} 
+            style={{
+              width: "40px",
+              height: "40px",
+              background: "#ff9500", // The orange from your calendar
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: "24px",
+              fontWeight: "300",
+            }}
+          >
             +
           </button>
+
         </div>
       </div>
     </div>
