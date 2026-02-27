@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 @layer base {
+  html {
+    background-color: #f6f8fa; /* Default light */
+  }
+  html.dark {
+    background-color: #0d1117;
+  }
   html, body {
     margin: 0;
     padding: 0;
