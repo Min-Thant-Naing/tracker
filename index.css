@@ -11,7 +11,6 @@
     margin: 0;
     padding: 0;
     height: 100%;
-    overscroll-behavior: none;
     background-color: transparent; /* Let the App component handle it, or set it dynamically */
   }
 
