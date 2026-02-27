@@ -75,10 +75,9 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
     const currentMonth = new Date().getMonth();
     const target = monthRefs.current[currentMonth];
     if (target && scrollRef.current) {
-      // Small delay to ensure layout is stable
-      setTimeout(() => {
-        target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-      }, 100);
+      // Set scrollLeft directly to avoid vertical page scrolling
+      // We subtract a small amount (e.g., 10px) to give some breathing room
+      scrollRef.current.scrollLeft = target.offsetLeft - 10;
     }
   }, []);
 
@@ -159,7 +158,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ habitId, completions, onToggle, dark,
                               userSelect: "none",
                               touchAction: "manipulation",
                               opacity: isFuture ? 0.25 : 1,
-                              border: isToday ? `2px solid ${dark ? "#f0f6fc" : "#24292f"}` : "none",
+                              border: isToday ? `2px solid ${dark ? "#ffc107" : "#ff9500"}` : "none",
                               boxSizing: "border-box"
                             }}
                           >
