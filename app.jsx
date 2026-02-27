@@ -223,10 +223,20 @@ export default function App() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  async function fetchHabits() {
-    const { data, error } = await supabase.from('habits').select('*').order('created_at', { ascending: true });
-    if (!error) setHabits(data || []);
-    setLoading(false);
+async function fetchHabits() {
+    try {
+      const { data, error } = await supabase
+        .from('habits')
+        .select('*')
+        .order('inserted_at', { ascending: true }); // Use inserted_at to match your SQL
+      
+      if (error) throw error;
+      setHabits(data || []);
+    } catch (error) {
+      console.error("Error fetching habits:", error.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function addHabit() {
