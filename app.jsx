@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 // --- PASTE YOUR ACTUAL KEYS HERE ---
-const SUPABASE_URL = "https://your-project-url.supabase.co"; 
+const SUPABASE_URL = "https://lrpcrhhlfjkepnsfdamy.supabase.co"; 
 const SUPABASE_KEY = "sb_publishable_kz6i62zm_68PD714_sMlsg_5n2QFZgs";
 // ------------------------------------
 
