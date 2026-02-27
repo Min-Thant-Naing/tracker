@@ -2,7 +2,7 @@
 
 @layer base {
   html {
-    background-color: #f6f8fa; /* Default light */
+    background-color: #fbfaf7; /* Subtle cream */
   }
   html.dark {
     background-color: #0d1117;
