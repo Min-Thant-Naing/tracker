@@ -72,7 +72,6 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
   const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const todayKey = toKey(today);
   const sub = dark ? "#8b949e" : "#9ca3af";
 
   return (
@@ -90,16 +89,14 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
         }}>{tip.text}</div>
       )}
       
-      {/* Horizontal Scroll Container */}
       <div style={{ 
         display: "flex", 
         overflowX: "auto", 
         gap: "24px", 
         paddingBottom: "10px",
-        scrollbarWidth: "none", // Hides scrollbar on Firefox
-        msOverflowStyle: "none"  // Hides scrollbar on IE/Edge
+        scrollbarWidth: "none", 
+        msOverflowStyle: "none"
       }}>
-        {/* Hides scrollbar on Chrome/Safari */}
         <style>{`div::-webkit-scrollbar { display: none; }`}</style>
 
         {months.map(m => {
@@ -110,9 +107,10 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
             <div key={m} style={{ flex: "0 0 calc(33.33% - 16px)", minWidth: "100px" }}>
               <div style={{ fontSize: 11, color: sub, fontWeight: 500, marginBottom: "8px" }}>{monthLabel}</div>
               <div style={{ display: "flex", gap: "3px" }}>
-                {/* Day Labels */}
+                
+                {/* 1. SUNDAY START LABELS */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginRight: "4px" }}>
-                  {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                  {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
                     <div key={i} style={{ height: "12px", fontSize: "8px", color: sub, display: "flex", alignItems: "center" }}>{d}</div>
                   ))}
                 </div>
@@ -125,7 +123,8 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
                         const key = toKey(date);
                         const isFuture = date > today;
                         const done = !!(completions && completions[key]);
-                        const bg = done ? (dark ? "#ff9500" : "#ff9500") : (dark ? "#21262d" : "#ebedf0"); // Orange like your ref
+                        // Matching the orange from your reference
+                        const bg = done ? "#ff9500" : (dark ? "#21262d" : "#ebedf0"); 
                         
                         return (
                           <div
@@ -153,6 +152,27 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
   );
 }
 
+// 2. UPDATED HELPER FOR SUNDAY START
+function buildMonthGrid(year, month) {
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  const weeks = [];
+  let currentWeek = Array(7).fill(null);
+  
+  for (let d = 1; d <= end.getDate(); d++) {
+    const date = new Date(year, month, d);
+    // getDay() is 0 for Sunday, which is what you want
+    const dayOfWeek = date.getDay(); 
+    currentWeek[dayOfWeek] = date;
+    
+    if (dayOfWeek === 6 || d === end.getDate()) {
+      weeks.push(currentWeek);
+      currentWeek = Array(7).fill(null);
+    }
+  }
+  return weeks;
+}
+
 function HabitCard({ habit, onDelete, onToggle, dark, year }) {
   const streak = getStreak(habit.completions);
   const textCol = dark ? "#e6edf3" : "#111827";
@@ -176,25 +196,7 @@ function HabitCard({ habit, onDelete, onToggle, dark, year }) {
 }
 
 
-// Add this helper function below your other helper functions
-function buildMonthGrid(year, month) {
-  const start = new Date(year, month, 1);
-  const end = new Date(year, month + 1, 0);
-  const weeks = [];
-  let currentWeek = Array(7).fill(null);
-  
-  for (let d = 1; d <= end.getDate(); d++) {
-    const date = new Date(year, month, d);
-    const dayOfWeek = (date.getDay() + 6) % 7; // Adjust to Monday start
-    currentWeek[dayOfWeek] = date;
-    
-    if (dayOfWeek === 6 || d === end.getDate()) {
-      weeks.push(currentWeek);
-      currentWeek = Array(7).fill(null);
-    }
-  }
-  return weeks;
-}
+
 
 
 export default function App() {
