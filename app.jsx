@@ -285,69 +285,69 @@ return (
         </div>
       </div>
 
-      {/* Habit List */}
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 16px 140px" }}>
+      {/* Habit List - Increased bottom padding to 180px so habits don't get stuck behind the bar */}
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 16px 180px" }}>
         {habits.length === 0 && <div style={{ textAlign: "center", color: subCol, marginTop: 60, fontSize: 13 }}>No habits yet. Add one below 🌱</div>}
         {habits.map(h => <HabitCard key={h.id} habit={h} onDelete={deleteHabit} onToggle={toggleDay} dark={dark} year={year} />)}
       </div>
 
-      {/* Apple Safari-Style Floating Search/Add Bar */}
+      {/* Floating Safari-Style Bar */}
       <div style={{
         position: "fixed",
-        bottom: 0,
+        bottom: "40px", // Increased space from the very bottom
         left: 0,
         right: 0,
-        padding: "10px 16px calc(25px + env(safe-area-inset-bottom))",
         zIndex: 100,
         display: "flex",
         justifyContent: "center",
-        pointerEvents: "none", 
+        padding: "0 20px",
+        pointerEvents: "none"
       }}>
         <div style={{
-          pointerEvents: "auto", 
+          pointerEvents: "auto",
           width: "100%",
-          maxWidth: "400px",
+          maxWidth: "450px",
           display: "flex",
           alignItems: "center",
-          gap: "10px",
-          padding: "6px 6px 6px 16px",
-          background: dark ? "rgba(40, 40, 40, 0.75)" : "rgba(255, 255, 255, 0.85)",
-          backdropFilter: "blur(25px) saturate(190%)",
-          WebkitBackdropFilter: "blur(25px) saturate(190%)",
-          borderRadius: "35px",
-          border: dark ? "0.5px solid rgba(255,255,255,0.12)" : "0.5px solid rgba(0,0,0,0.08)",
-          boxShadow: "0 12px 35px rgba(0,0,0,0.18)",
+          gap: "12px",
+          padding: "8px 8px 8px 20px",
+          // Matches your dark background color #0d1117 exactly with a bit of glass transparency
+          background: dark ? "rgba(13, 17, 23, 0.85)" : "rgba(255, 255, 255, 0.9)",
+          backdropFilter: "blur(20px) saturate(180%)",
+          WebkitBackdropFilter: "blur(20px) saturate(180%)",
+          borderRadius: "32px",
+          border: dark ? "1px solid #30363d" : "1px solid #e5e7eb", // Uses your actual border colors
+          boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
         }}>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && addHabit()}
-            placeholder="Add a habit..."
+            placeholder="New habit..."
             style={{
               flex: 1,
               background: "transparent",
               border: "none",
-              fontSize: "17px", 
+              fontSize: "17px",
               color: textCol,
               outline: "none",
-              padding: "10px 0",
             }}
           />
           <button 
             onClick={addHabit} 
             style={{
-              width: "38px",
-              height: "38px",
-              background: dark ? "#ffffff" : "#000000", 
-              color: dark ? "#000000" : "#ffffff",
+              width: "40px",
+              height: "40px",
+              background: dark ? "#39d353" : "#2da44e", // Uses the green from your checkmarks
+              color: "#fff",
               border: "none",
               borderRadius: "50%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              fontSize: "20px",
-              fontWeight: "400",
+              fontSize: "24px",
+              fontWeight: "300",
             }}
           >
             +
