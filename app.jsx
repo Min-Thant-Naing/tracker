@@ -73,7 +73,6 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayKey = toKey(today);
-
   const sub = dark ? "#8b949e" : "#9ca3af";
 
   return (
@@ -91,51 +90,52 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
         }}>{tip.text}</div>
       )}
       
-      {/* Container for the monthly grids */}
+      {/* Horizontal Scroll Container */}
       <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", 
-        gap: "20px",
-        marginTop: "10px" 
+        display: "flex", 
+        overflowX: "auto", 
+        gap: "24px", 
+        paddingBottom: "10px",
+        scrollbarWidth: "none", // Hides scrollbar on Firefox
+        msOverflowStyle: "none"  // Hides scrollbar on IE/Edge
       }}>
+        {/* Hides scrollbar on Chrome/Safari */}
+        <style>{`div::-webkit-scrollbar { display: none; }`}</style>
+
         {months.map(m => {
           const monthLabel = new Date(year, m).toLocaleString("default", { month: "short" });
           const grid = buildMonthGrid(year, m);
           
           return (
-            <div key={m} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ fontSize: 11, color: sub, fontWeight: 600, textAlign: "center" }}>{monthLabel}</div>
-              <div style={{ display: "flex", gap: GAP }}>
-                {/* Day Labels (M, W, F, S) inside the month if you want, but keeps it clean */}
-                <div style={{ display: "flex", flexDirection: "column", gap: GAP }}>
+            <div key={m} style={{ flex: "0 0 calc(33.33% - 16px)", minWidth: "100px" }}>
+              <div style={{ fontSize: 11, color: sub, fontWeight: 500, marginBottom: "8px" }}>{monthLabel}</div>
+              <div style={{ display: "flex", gap: "3px" }}>
+                {/* Day Labels */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginRight: "4px" }}>
                   {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                    <div key={i} style={{ height: 14, fontSize: 8, color: sub, display: "flex", alignItems: "center" }}>{d}</div>
+                    <div key={i} style={{ height: "12px", fontSize: "8px", color: sub, display: "flex", alignItems: "center" }}>{d}</div>
                   ))}
                 </div>
                 
-                <div style={{ display: "flex", gap: GAP }}>
+                <div style={{ display: "flex", gap: "3px" }}>
                   {grid.map((week, wi) => (
-                    <div key={wi} style={{ display: "flex", flexDirection: "column", gap: GAP }}>
+                    <div key={wi} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
                       {week.map((date, di) => {
-                        if (!date) return <div key={di} style={{ width: 14, height: 14 }} />;
-                        
+                        if (!date) return <div key={di} style={{ width: "12px", height: "12px" }} />;
                         const key = toKey(date);
-                        const isToday = key === todayKey;
                         const isFuture = date > today;
                         const done = !!(completions && completions[key]);
-                        const bg = done ? (dark ? "#39d353" : "#2da44e") : (dark ? "#21262d" : "#ebedf0");
+                        const bg = done ? (dark ? "#ff9500" : "#ff9500") : (dark ? "#21262d" : "#ebedf0"); // Orange like your ref
                         
                         return (
                           <div
                             key={key}
                             onClick={() => { if (!isFuture) onToggle(habitId, key); }}
-                            onMouseEnter={e => setTip({ x: e.clientX, y: e.clientY, text: (isToday ? "Today · " : "") + date.toLocaleDateString() })}
+                            onMouseEnter={e => setTip({ x: e.clientX, y: e.clientY, text: date.toLocaleDateString() })}
                             onMouseLeave={() => setTip(null)}
                             style={{
-                              width: 14, height: 14, borderRadius: 3,
+                              width: "12px", height: "12px", borderRadius: "2px",
                               background: bg,
-                              outline: isToday ? `1.5px solid ${dark ? "#58a6ff" : "#0969da"}` : "none",
-                              outlineOffset: -1,
                               cursor: !isFuture ? "pointer" : "default",
                             }}
                           />
@@ -152,6 +152,29 @@ function Heatmap({ habitId, completions, onToggle, dark, year }) {
     </div>
   );
 }
+
+function HabitCard({ habit, onDelete, onToggle, dark, year }) {
+  const streak = getStreak(habit.completions);
+  const textCol = dark ? "#e6edf3" : "#111827";
+  const subCol = dark ? "#8b949e" : "#9ca3af";
+
+  return (
+    <div style={{ padding: "16px 0", marginBottom: "20px" }}> {/* REMOVED BORDER AND BACKGROUND */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+        <div>
+          <div style={{ fontSize: "16px", fontWeight: "600", color: textCol }}>{habit.name}</div>
+          <div style={{ fontSize: "12px", color: subCol }}>{streak} day streak</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+           <div onClick={() => setYear(y => y)} style={{ fontSize: "12px", color: "#007aff", cursor: "pointer" }}>{year} ›</div>
+           <div onClick={() => onDelete(habit.id, habit.name)} style={{ color: subCol, cursor: "pointer", fontSize: "14px" }}>✕</div>
+        </div>
+      </div>
+      <Heatmap habitId={habit.id} completions={habit.completions} onToggle={onToggle} dark={dark} year={year} />
+    </div>
+  );
+}
+
 
 // Add this helper function below your other helper functions
 function buildMonthGrid(year, month) {
@@ -173,44 +196,6 @@ function buildMonthGrid(year, month) {
   return weeks;
 }
 
-
-function HabitCard({ habit, onDelete, onToggle, dark, year }) {
-  const streak = getStreak(habit.completions);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayKey = toKey(today);
-  const doneToday = !!(habit.completions && habit.completions[todayKey]);
-  const cardBg = dark ? "#161b22" : "#fff";
-  const border = dark ? "1px solid #30363d" : "1px solid #e5e7eb";
-  const textCol = dark ? "#e6edf3" : "#111827";
-  const subCol = dark ? "#8b949e" : "#9ca3af";
-  const green = dark ? "#39d353" : "#2da44e";
-
-  return (
-    <div style={{ background: cardBg, border, borderRadius: 12, padding: "16px 18px", marginBottom: 12, transition: "background 0.3s" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: textCol }}>{habit.name}</div>
-          <div style={{ fontSize: 11, color: subCol, marginTop: 2 }}>{streak > 0 ? `🔥 ${streak} day streak` : "Start today"}</div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            onClick={() => onToggle(habit.id, todayKey)}
-            style={{
-              width: 26, height: 26, borderRadius: "50%",
-              border: `2px solid ${doneToday ? green : (dark ? "#30363d" : "#d1d5db")}`,
-              background: doneToday ? green : "transparent",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", transition: "all 0.2s",
-            }}
-          >{doneToday && <span style={{ color: "#fff", fontSize: 13 }}>✓</span>}</div>
-          <div onClick={() => onDelete(habit.id)} style={{ color: subCol, cursor: "pointer", fontSize: 15 }}>✕</div>
-        </div>
-      </div>
-      <Heatmap habitId={habit.id} completions={habit.completions} onToggle={onToggle} dark={dark} year={year} />
-    </div>
-  );
-}
 
 export default function App() {
   const currentYear = new Date().getFullYear();
